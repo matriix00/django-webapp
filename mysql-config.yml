@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+   name: mysql-config
+   namespace: django-namespace
+data:
+  user: "mego"
+  pass: "123"
+  db: test

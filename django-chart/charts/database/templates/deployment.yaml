@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "dblabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+    {{- include "dblabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+       {{- include "dblabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: mysql-container
+        image: {{ .Values.image.repository }}:latest
+        ports:
+        - containerPort: {{ .Values.image.port}}
+        
+        {{- with .Values.env }}
+          
+        env:
+          {{- with .dbuser }}
+        - name: {{ .name }}
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credentials
+              key: {{ .value }}
+          {{- end }}
+
+          {{- with .dbpass }}
+        - name: {{ .name }}
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credentials
+              key: {{ .value }}
+          {{- end }}
+
+          {{- with .dbsuper }}
+        - name: {{ .name }}
+          valueFrom: 
+            secretKeyRef:
+              name: mysql-credentials
+              key: {{ .value }}
+          {{- end }}
+
+          {{- with .dbname }}
+        - name: {{ .name }}
+          value: {{ .value }}
+          # valueFrom:
+          #   configMapKeyRef:
+          #     name: mysql-config
+          #     key: db
+          {{- end }}
+        {{- end }}
+        volumeMounts:
+          - name: mysql-volume-mount
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-volume-mount
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+

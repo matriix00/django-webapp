@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+     {{- include "labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: django-container
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        ports:
+        - containerPort: {{ .Values.image.port }}
+        command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+       
+        {{- with .Values.env }}   
+       
+        env:
+            {{- with .dbuser }}
+          - name: {{ .name }}
+            valueFrom:
+              secretKeyRef:
+                name: mysql-credentials
+                key: {{ .value }}
+            {{- end }}
+            {{- with .dbpass }}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+            # valueFrom:
+            #   secretKeyRef:
+            #     name: mysql-credentials
+            #     key: pass
+            {{- end }}
+            {{- with .dbhost }}
+          - name: {{ .name }}
+            value: mysql-service
+            {{- end }}     
+        {{- end -}}   
+

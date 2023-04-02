@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  namespace: django-namespace
+  labels:
+    app: django-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-webapp
+  template:
+    metadata:
+      labels:
+        app: django-webapp
+    spec:
+      containers:
+      - name: django-container
+        image: magdy79/django-web
+        ports:
+        - containerPort: 8000
+        # python manage.py runserver 0.0.0.0:8000
+        # command: ['sleep', '7000'] # runs migrations and starts the server
+        # command: ["/bin/bash"]
+        # command: ["python manage.py runserver 0.0.0.0:8000"]
+        command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+
+        env:
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: mysql-credentials
+                key: user
+          - name: MYSQL_PASSWORD
+            value: "123"
+            # valueFrom:
+            #   secretKeyRef:
+            #     name: mysql-credentials
+            #     key: pass
+
+          - name: MYSQL_HOST
+            value: mysql-service        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+  namespace: django-namespace
+spec:
+  type: LoadBalancer
+  selector:
+     app: django-webapp
+  ports:
+  - port: 8000
+    targetPort: 8000
