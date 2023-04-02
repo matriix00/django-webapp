@@ -20,8 +20,10 @@ spec:
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         ports:
         - containerPort: {{ .Values.image.port }}
-        command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
-       
+        # command: [ "sleep" ,"20", "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+        command: ["/bin/sh", "-c"]
+        args: ["sleep 20;python manage.py runserver 0.0.0.0:8000"]
+          # - "python manage.py runserver 0.0.0.0:8000"
         {{- with .Values.env }}   
        
         env:
