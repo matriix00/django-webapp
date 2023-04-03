@@ -37,13 +37,13 @@
 
 ### Cloning this project
 ```bash
-$ git https://github.com/matriix00/django-webapp.git
+$ git clone https://github.com/matriix00/django-webapp.git
 ```
 * First we use helm to install (deploy) django chart on k8s .
 
 
 ```bash
-$ helm install test django-chart/ --namespace django-namespace --create-namespace
+$ helm install release1 django-chart/ --namespace django-namespace --create-namespace
 ```
 * Now u can open you web app using loadbalancer url
 ```bash
@@ -77,3 +77,16 @@ http://localhost:3000/
 ```
 
 
+
+### Hopefully I helped you with anything.
+## Clean
+- Please make sure to Destroy the resources once the testing is over to save the billing.
+```bash
+$ helm uninstall release1
+$ terraform destroy -auto-approve
+
+```
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
